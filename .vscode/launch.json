@@ -8,7 +8,7 @@
             "name": "Python",
             "type": "python",
             "request": "launch",
-            "program": "life.py",
+            "program": "main.py",
             "console": "integratedTerminal"
         }
     ]
