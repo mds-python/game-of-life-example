@@ -59,6 +59,8 @@ class Display:
                     if event.key == pygame.K_SPACE:
                         # Pause/unpause on SPACE
                         self.running = not self.running
+                    elif event.key == pygame.K_q:
+                        game_loop = False
                     else:
                         # Shift board on arrows
                         dir = {pygame.K_LEFT: Board.LEFT, pygame.K_RIGHT: Board.RIGHT,
