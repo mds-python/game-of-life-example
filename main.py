@@ -38,6 +38,8 @@ def game(rule=Defaults.rule, board=Defaults.board, pattern=Defaults.pattern, den
         from view_pygame import Display2D as Display
     elif view == 'pg3':
         from view_pygame import Display3D as Display
+    elif view == 'gl':
+        from view_opengl import Display
     else:
         raise ValueError("Unrecognized view engine")
 
@@ -45,7 +47,7 @@ def game(rule=Defaults.rule, board=Defaults.board, pattern=Defaults.pattern, den
     display.animate(fps)
 
 
-if __name__ == '__main__':
+def main():
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -66,7 +68,11 @@ if __name__ == '__main__':
                         help="number of animation frames per second")
     parser.add_argument('-c', '--colormap', type=str, default=Defaults.colormap,
                         help="display color map")
-    parser.add_argument('-v', '--view', type=str, default=Defaults.view, choices=('mpl', 'pg2', 'pg3'),
+    parser.add_argument('-v', '--view', type=str, default=Defaults.view, choices=('mpl', 'pg2', 'pg3', 'gl'),
                         help="view engine")
 
     game(**vars(parser.parse_args()))
+
+
+if __name__ == '__main__':
+    main()
