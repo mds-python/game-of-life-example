@@ -44,7 +44,7 @@ class Display:
         self._axes.yaxis.set_major_locator(plt.NullLocator())
         plt.tight_layout()
 
-        self._figure.canvas.set_window_title("Game of Life (matplotlib)")
+        self._figure.canvas.manager.set_window_title("Game of Life (matplotlib)")
 
         # Add Matplotlib event handlers
         self._figure.canvas.mpl_connect('key_press_event', self._key_press_event)

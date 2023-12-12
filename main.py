@@ -10,7 +10,29 @@ class Defaults:
     steps = 4
     fps = 8
     colormap = 'viridis'
-    view = 'pg2'
+    view = 'gl'
+    fallback_views = ['pg2', 'mpl']
+
+def select_display(view):
+    try:
+        if view == 'mpl':
+            from view_mpl import Display
+        elif view == 'pg2':
+            from view_pygame import Display2D as Display
+        elif view == 'pg3':
+            from view_pygame import Display3D as Display
+        elif view == 'gl':
+            from view_opengl import Display
+        else:
+            raise ValueError("Unrecognized view engine")
+        return Display
+    except ImportError:
+        if view in Defaults.fallback_views:
+            Defaults.fallback_views.remove(view)
+        if not Defaults.fallback_views:
+            raise
+        print("Falling back to {}".format(Defaults.fallback_views[0]))
+        return select_display(Defaults.fallback_views[0])
 
 
 def game(rule=Defaults.rule, board=Defaults.board, pattern=Defaults.pattern, density=Defaults.density,
@@ -32,16 +54,7 @@ def game(rule=Defaults.rule, board=Defaults.board, pattern=Defaults.pattern, den
 
     board = Board(size=board, pattern=pattern, dens=density, rule=rule, steps=steps)
 
-    if view == 'mpl':
-        from view_mpl import Display
-    elif view == 'pg2':
-        from view_pygame import Display2D as Display
-    elif view == 'pg3':
-        from view_pygame import Display3D as Display
-    elif view == 'gl':
-        from view_opengl import Display
-    else:
-        raise ValueError("Unrecognized view engine")
+    Display = select_display(view)
 
     display = Display(board, colormap)
     display.animate(fps)

@@ -1,4 +1,5 @@
 numpy
 matplotlib
 pygame
-PyOpenGL
+glumpy
+pyglfw
