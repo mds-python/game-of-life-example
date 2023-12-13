@@ -1,7 +1,9 @@
+import os
+
 import pygame
 from matplotlib import cm as colormaps
 
-from model import Board
+from ..model import Board
 
 
 class Display:
@@ -159,7 +161,7 @@ class Display2D(Display):
     def _draw(self):
         """Draw the screen.
         """
-        self._screen.fill(self._colors[0])
+        self._screen.fill((32, 48, 64))
         for y, row in enumerate(self.board.data):
             for x, val in enumerate(row):
                 if val > 0:
@@ -191,7 +193,8 @@ class Display3D(Display):
         self._mouse_pos = None
 
         colors = self._colors[1:]
-        box = pygame.image.load('box.png')
+        dirname = os.path.dirname(__file__)
+        box = pygame.image.load(os.path.join(dirname, 'box.png'))
         self._boxes = [box.copy() for _ in colors]
         for i, c in enumerate(colors):
             self._boxes[i].fill(c, special_flags=pygame.BLEND_MULT)

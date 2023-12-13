@@ -1,15 +1,9 @@
-from PyQt5.QtGui import QCursor
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import Qt
 import numpy as np
-
-import matplotlib
-matplotlib.use('Qt5Agg')    # this must be done before importing matplotlib.pyplot
 
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-from model import Board
+from ..model import Board
 
 
 class Display:

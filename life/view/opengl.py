@@ -10,7 +10,7 @@ try:
 except ImportError:
     glfw = None
 
-from model import Board
+from ..model import Board
 
 log.setLevel(logging.INFO)
 
@@ -266,6 +266,8 @@ class Display:
             self.reset_view()
         elif key == ord('F'):
             self.window.set_fullscreen(not self.window.get_fullscreen())
+        elif key == ord('Q'):
+            self.window.close()
         elif key == app.window.key.LSHIFT:
             self._shift = True
         else:
@@ -345,10 +347,3 @@ class Display:
             self.grid['u_view'] = self.view
         elif buttons == app.window.mouse.LEFT:
             self.toggle_cube(x, y, True)
-
-
-if __name__ == '__main__':
-    import sys
-    import main
-    sys.argv.extend(['-v', 'gl', '-d', '0.5', '-b', '12', '9'])
-    main.main()

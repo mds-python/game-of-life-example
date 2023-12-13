@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "life"
+version = "0.1.0"
+description = "An example implementation of the Conway's Game of Life."
+authors = [{ name = "Maciej Dems", email = "maciej.dems@p.lodz.pl" }]
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "GPL3" }
+dynamic = ["dependencies"]
+
+[project.scripts]
+life = "life:main"
+
+[tool.setuptools.package-data]
+life = [
+    "view/box.png",
+    "patterns/*.txt"
+]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}

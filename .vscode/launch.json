@@ -8,8 +8,10 @@
             "name": "Python",
             "type": "python",
             "request": "launch",
-            "program": "main.py",
-            "console": "integratedTerminal"
+            "module": "life",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": ["-vmpl"]
         }
     ]
 }

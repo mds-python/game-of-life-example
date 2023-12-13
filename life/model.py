@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 
@@ -18,7 +20,6 @@ class Board:
     Class attributes:
         UP, DOWN, LEFT, RIGHT: shift directions used by the `roll` method
     """
-
 
     UP = -1, 0
     DOWN = 1, 0
@@ -47,19 +48,21 @@ class Board:
         vals = steps, 0
         size = size[1], size[0]  # numpy requires matrix dimensions as (ny, nx)
         if pattern is None:
-            self.data = np.random.choice(vals, size, p=[dens, 1-dens])
+            self.data = np.random.choice(vals, size, p=[dens, 1 - dens])
         else:
             self.data = np.zeros(size, dtype=int)
             if pattern.endswith('.txt'):
                 pattern = pattern[:-4]
+            if os.path.sep not in pattern and not os.path.exists(f'{pattern}.txt'):
+                pattern = os.path.join(os.path.dirname(__file__), 'patterns', pattern)
             with open(f'{pattern}.txt') as source:
                 loaded = np.array([list(line.rstrip()) for line in source.readlines() if not line.startswith('#')])
             stamp = np.zeros(loaded.shape, dtype=int)
             stamp[loaded != '.'] = steps
             if size[0] < stamp.shape[0] or size[1] < stamp.shape[1]:
                 raise ValueError(f"Board too small, must be at least {stamp.shape}")
-            d0, d1 = (np.random.randint(size[i] - stamp.shape[i]) for i in (0,1))
-            self.data[d0:d0+stamp.shape[0],d1:d1+stamp.shape[1]] = stamp
+            d0, d1 = (np.random.randint(size[i] - stamp.shape[i]) for i in (0, 1))
+            self.data[d0:d0 + stamp.shape[0], d1:d1 + stamp.shape[1]] = stamp
 
     @property
     def size(self):
@@ -75,8 +78,7 @@ class Board:
         mask = np.zeros(self.size)
         mask[self.data != 0] = 1
         shifts = -1, 0, 1
-        total = sum(np.roll(mask, (i,j), (0,1))
-                    for i in shifts for j in shifts if i != 0 or j != 0)
+        total = sum(np.roll(mask, (i, j), (0, 1)) for i in shifts for j in shifts if i != 0 or j != 0)
         self.data[(self.data > 0) & (self.data < self.steps)] += 1
         for rise in self.rise:
             self.data[(mask == 0) & (total == rise)] = 1
@@ -98,4 +100,4 @@ class Board:
         Args:
             dir (LEFT, RIGHT, UP, DOWN): shift direction
         """
-        self.data = np.roll(self.data, dir, (0,1))
+        self.data = np.roll(self.data, dir, (0, 1))
