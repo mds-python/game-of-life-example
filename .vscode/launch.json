@@ -10,8 +10,7 @@
             "request": "launch",
             "module": "life",
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "args": ["-vmpl"]
+            "console": "integratedTerminal"
         }
     ]
 }

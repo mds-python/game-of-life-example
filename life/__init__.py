@@ -8,7 +8,7 @@ class defaults:
     density = 0.1
     steps = 4
     fps = 8
-    colormap = 'viridis'
+    colormap = 'copper'
     view = 'gl'
     fallback_views = ['pg2', 'mpl']
 

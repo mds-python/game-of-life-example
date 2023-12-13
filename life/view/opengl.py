@@ -105,16 +105,16 @@ class Display:
             EmitVertex();
             EndPrimitive();
 
-            f_color = 0.1  * v_color[0];
-            gl_Position = mvp * (pos + vec4(0.5, 0.5, -0.5, 0));
-            EmitVertex();
-            gl_Position = mvp * (pos + vec4(0.5, -0.5, -0.5, 0));
-            EmitVertex();
-            gl_Position = mvp * (pos + vec4(-0.5, 0.5, -0.5, 0));
-            EmitVertex();
-            gl_Position = mvp * (pos + vec4(-0.5, -0.5, -0.5, 0));
-            EmitVertex();
-            EndPrimitive();
+            // f_color = 0.1  * v_color[0];
+            // gl_Position = mvp * (pos + vec4(0.5, 0.5, -0.5, 0));
+            // EmitVertex();
+            // gl_Position = mvp * (pos + vec4(0.5, -0.5, -0.5, 0));
+            // EmitVertex();
+            // gl_Position = mvp * (pos + vec4(-0.5, 0.5, -0.5, 0));
+            // EmitVertex();
+            // gl_Position = mvp * (pos + vec4(-0.5, -0.5, -0.5, 0));
+            // EmitVertex();
+            // EndPrimitive();
         }
     """
 
@@ -138,8 +138,10 @@ class Display:
     """
 
     GRID_FRAGMENT_SHADER = """
+        uniform vec3 u_color;   // Interpolated fragment color (in)
+
         void main() {
-            gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
+            gl_FragColor = vec4(u_color, 1.0);
         }
     """
 
@@ -163,8 +165,7 @@ class Display:
         # Initialize the window
         if glfw is not None:
             app.use('glfw')
-        self.window = app.Window(width=1920, height=1080)
-        self.window.set_handler('on_init', self.on_init)
+        self.window = app.Window(width=1920, height=1080, title="Game of Life (OpenGL)")
         self.window.set_handler('on_resize', self.on_resize)
         self.window.set_handler('on_draw', self.on_draw)
         self.window.set_handler('on_key_press', self.on_key_press)
@@ -174,7 +175,6 @@ class Display:
         self.window.set_handler('on_mouse_release', self.on_mouse_release)
         self.window.set_handler('on_mouse_drag', self.on_mouse_drag)
         self._shift = False
-        self._toggled = None
 
         self.cubes = gloo.Program(self.CUBE_VERTEX_SHADER, self.CUBE_FRAGMENT_SHADER, self.CUBE_GEOMETRY_SHADER, version=330)
 
@@ -193,16 +193,14 @@ class Display:
         xlines = np.array([[[x, -grid_offset[1]], [x, grid_offset[1]]] for x in gridx], np.float32).reshape(-1, 2)
         ylines = np.array([[[-grid_offset[0], y], [grid_offset[0], y]] for y in gridy], np.float32).reshape(-1, 2)
 
+        self.icorners = 0, 1, 2 * xlines.shape[0], 2 * xlines.shape[0] + 1
+
         lines = np.zeros(xlines.shape[0] + ylines.shape[0], self.CTYPE)
         lines['a_position'] = np.concatenate([xlines, ylines], axis=0)
 
         self.grid = gloo.Program(self.GRID_VERTEX_SHADER, self.GRID_FRAGMENT_SHADER, version=330)
         self.grid.bind(lines.view(gloo.VertexBuffer))
 
-    def on_init(self):
-        """Initialize OpenGL context."""
-        gl.glEnable(gl.GL_DEPTH_TEST)
-        gl.glEnable(gl.GL_CULL_FACE)
         self._t = 0
 
     def animate(self, fps):
@@ -218,12 +216,12 @@ class Display:
         self._t = 0
         self._updt = 1. / fps
 
+        gl.glEnable(gl.GL_DEPTH_TEST)
         app.run()
 
     def reset_view(self):
         """Reset view matrix."""
-        self.view = np.eye(4, dtype=np.float32)
-        glm.translate(self.view, 0, 0, -self.board.size[1] * 2**0.5)
+        self.view = glm.translation(0, 0, -self.board.size[0] * 1.25)
         self.cubes['u_view'] = self.view
         self.grid['u_view'] = self.view
 
@@ -244,7 +242,7 @@ class Display:
     def on_resize(self, width, height):
         """Update projection matrix on window resize."""
         ratio = width / height
-        self.projection = glm.perspective(45.0, ratio, 0.1, 500.0)
+        self.projection = glm.perspective(45.0, ratio, 0.1, 2 * max(self.board.size))
         self.cubes['u_projection'] = self.projection
         self.grid['u_projection'] = self.projection
 
@@ -256,8 +254,22 @@ class Display:
                 self._t = 0
                 self.update_board()
         self.window.clear()
+
+        gl.glDisable(gl.GL_BLEND)
+        self.grid['u_color'] = 0.125, 0.188, 0.250
+        self.grid.draw(gl.GL_TRIANGLE_STRIP, self.icorners)
+        gl.glEnable(gl.GL_BLEND)
+
+        gl.glDisable(gl.GL_POLYGON_OFFSET_FILL)
+        gl.glDisable(gl.GL_DEPTH_TEST)
+        self.grid['u_color'] = 0.125, 0.125, 0.125
         self.grid.draw(gl.GL_LINES)
+        gl.glEnable(gl.GL_DEPTH_TEST)
+        gl.glEnable(gl.GL_POLYGON_OFFSET_FILL)
+
+        gl.glEnable(gl.GL_CULL_FACE)
         self.cubes.draw(gl.GL_POINTS)
+        gl.glDisable(gl.GL_CULL_FACE)
 
     def on_key_press(self, key, modifiers):
         if key == app.window.key.SPACE:
@@ -287,6 +299,9 @@ class Display:
             self._shift = False
 
     def on_mouse_scroll(self, x, y, dx, dy):
+        camdist = np.linalg.norm(self.view[3, :3])
+        if camdist > 10:
+            dy *= np.log10(camdist)
         self.view = glm.translate(self.view, 0, 0, dy)
         self.cubes['u_view'] = self.view
         self.grid['u_view'] = self.view
@@ -301,18 +316,26 @@ class Display:
         ray = np.linalg.inv(projection) @ np.array([x, y, -1, 1], float)
         ray = (iview @ np.array([ray[0], ray[1], -1, 0]))[:3]
         ray /= np.linalg.norm(ray)
-        t = -camera[2] / ray[2]
-        pos = (camera + t * ray)[:2] + self.offset
+        t0 = -camera[2] / ray[2]
+        t1 = -(camera[2] + 1) / ray[2]
+        if ray[2] > 0:
+            t0, t1 = t1, t0-0.01
+        for t in np.arange(t1, t0 + 1e-3, -0.01):
+            pos = (camera + t * ray)[:2] + self.offset
+            pos[0] = self.board.size[1] - 1 - pos[0]
+            j, i = np.round(pos).astype(int)
+            if 0 <= i < self.board.size[0] and 0 <= j < self.board.size[1] and self.board.data[i, j] > 0:
+                return i, j
+        if ray[2] > 0:
+            return -1, -1
+        pos = (camera + t0 * ray)[:2] + self.offset
         pos[0] = self.board.size[1] - 1 - pos[0]
         j, i = np.round(pos).astype(int)
         return i, j
 
-    def toggle_cube(self, x, y, drag=False):
+    def toggle_cube(self, x, y):
         i, j = self.raycast(x, y)
         if 0 <= i < self.board.size[0] and 0 <= j < self.board.size[1]:
-            if drag and self._toggled == (i, j):
-                return
-            self._toggled = (i, j)
             self.board.toggle(i, j)
             self.make_cubes()
 
@@ -333,8 +356,8 @@ class Display:
     def on_mouse_drag(self, x, y, dx, dy, buttons):
         if buttons == app.window.mouse.RIGHT:
             if self._shift:
-                self.view = glm.rotate(self.view, 0.1 * dx, 0, 1, 0)
-                self.view = glm.rotate(self.view, 0.1 * dy, 1, 0, 0)
+                glm.rotate(self.view, 0.1 * dx, 0, 1, 0)
+                glm.rotate(self.view, 0.1 * dy, 1, 0, 0)
             else:
                 self.view = glm.rotate(np.eye(4), 0.1 * dx, 0, 0, 1) @ self.view
                 axis = self.view[:3, :3] @ [1, 0, 0]
@@ -342,8 +365,6 @@ class Display:
             self.cubes['u_view'] = self.view
             self.grid['u_view'] = self.view
         elif buttons == app.window.mouse.MIDDLE:
-            self.view = glm.translate(self.view, 0.1 * dx, -0.1 * dy, 0)
+            glm.translate(self.view, 0.1 * dx, -0.1 * dy, 0)
             self.cubes['u_view'] = self.view
             self.grid['u_view'] = self.view
-        elif buttons == app.window.mouse.LEFT:
-            self.toggle_cube(x, y, True)
