@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [project]
 name = "life"
-version = "0.1.0"
+version = "1.0.0"
 description = "An example implementation of the Conway's Game of Life."
 authors = [{ name = "Maciej Dems", email = "maciej.dems@p.lodz.pl" }]
 readme = "README.md"
