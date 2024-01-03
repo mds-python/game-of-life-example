@@ -145,12 +145,14 @@ class Display:
         }
     """
 
-    def __init__(self, board, cmap='viridis'):
+    def __init__(self, board, cmap='viridis', fullscreen=False):
         """Initialize OpenGL display.
 
         Args:
             board (Board): board instance providing game logic
             cmap (str): color map name
+            fullscreen (bool): whether to start in fullscreen mode
+
         """
         sys.real_argv = sys.argv[:]
         sys.argv = sys.argv[:1]
@@ -166,6 +168,8 @@ class Display:
         if glfw is not None:
             app.use('glfw')
         self.window = app.Window(width=1920, height=1080, title="Game of Life (OpenGL)")
+        if fullscreen:
+            self.window.set_fullscreen(True)
         self.window.set_handler('on_resize', self.on_resize)
         self.window.set_handler('on_draw', self.on_draw)
         self.window.set_handler('on_key_press', self.on_key_press)

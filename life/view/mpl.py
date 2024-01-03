@@ -21,12 +21,13 @@ class Display:
         running (bool): whether the animation is running or held
     """
 
-    def __init__(self, board, cmap='viridis'):
+    def __init__(self, board, cmap='viridis', fullscreen=False):
         """Initialize display.
 
         Args:
             board (Board): board instance providing game logic
             cmap (str): color map name
+            fullscreen (bool): whether to show the display in fullscreen mode
         """
         self.running = True
         self.board = board
@@ -43,6 +44,9 @@ class Display:
         # Add Matplotlib event handlers
         self._figure.canvas.mpl_connect('key_press_event', self._key_press_event)
         self._figure.canvas.mpl_connect('button_press_event', self._click_event)
+
+        if fullscreen:
+            self._figure.canvas.manager.full_screen_toggle()
 
     def animate(self, fps):
         """Show the plot and start the animation.

@@ -31,7 +31,8 @@ where `[OPTIONS]` are optional arguments and can be:
 * `-s STEPS` or `--steps STEPS` number of color steps showing cell age,
 * `-f FPS` or `--fps FPS` number of animation frames per second,
 * `-c COLORMAP` or `--colormap COLORMAP` display color map,
-* `-v ENGINE` or `--view ENGINE` view engine (can be `mpl` or `pg2`, `pg3`, or `gl`).
+* `-v ENGINE` or `--view ENGINE` view engine (can be `mpl` or `pg2`, `pg3`, or `gl`),
+* `-F` or `--fullscreen` start in fullscreen mode.
 
 ## Other interesting rules
 

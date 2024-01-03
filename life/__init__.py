@@ -11,6 +11,7 @@ class defaults:
     colormap = 'copper'
     view = 'gl'
     fallback_views = ['pg2', 'mpl']
+    fullscreen = False
 
 
 def select_display(view):
@@ -43,7 +44,8 @@ def game(
     steps=defaults.steps,
     fps=defaults.fps,
     colormap=defaults.colormap,
-    view=defaults.view
+    view=defaults.view,
+    fullscreen=defaults.fullscreen,
 ):
     """Show Game of Life.
 
@@ -64,7 +66,7 @@ def game(
 
     Display = select_display(view)
 
-    display = Display(board, colormap)
+    display = Display(board, colormap, fullscreen=fullscreen)
     display.animate(fps)
 
 
@@ -103,6 +105,7 @@ def main():
     )
     parser.add_argument('-s', '--steps', type=int, default=defaults.steps, help="number of color steps showing cell age")
     parser.add_argument('-f', '--fps', type=float, default=defaults.fps, help="number of animation frames per second")
+    parser.add_argument('-F', '--fullscreen', action='store_true', default=defaults.fullscreen, help="start in fullscreen mode")
     parser.add_argument('-c', '--colormap', type=str, default=defaults.colormap, help="display color map")
     parser.add_argument('-v', '--view', type=str, default=defaults.view, choices=('mpl', 'pg2', 'pg3', 'gl'), help="view engine")
 

@@ -24,12 +24,13 @@ class Display:
         running (bool): whether the animation is running or held
     """
 
-    def __init__(self, board, cmap):
+    def __init__(self, board, cmap, fullscreen=False):
         """Initialize display.
 
         Args:
             board (Board): board instance providing game logic
             cmap (str): color map name
+            fullscreen (bool): whether to show the display in fullscreen mode
         """
         self.running = True
         self.board = board
@@ -79,6 +80,8 @@ class Display:
                         self.running = not self.running
                     elif event.key == pygame.K_q:
                         game_loop = False
+                    elif event.key == pygame.K_f:
+                        pygame.display.toggle_fullscreen()
                     else:
                         # Shift board on arrows
                         dir = {
@@ -134,18 +137,20 @@ class Display2D(Display):
 
     CELL_SIZE = 12
 
-    def __init__(self, board, cmap='viridis'):
+    def __init__(self, board, cmap='viridis', fullscreen=False):
         """Initialize 2D display.
 
         Args:
             board (Board): board instance providing game logic
             cmap (str): color map name
+            fullscreen (bool): whether to show the display in fullscreen mode
         """
-        super().__init__(board, cmap)
+        super().__init__(board, cmap, fullscreen)
 
         # Initialize screen for 2D display
         size = board.size[1] * self.CELL_SIZE, board.size[0] * self.CELL_SIZE
-        self._screen = pygame.display.set_mode(size, pygame.SCALED | pygame.RESIZABLE)
+        fsmode = pygame.FULLSCREEN if fullscreen else 0
+        self._screen = pygame.display.set_mode(size, pygame.SCALED | pygame.RESIZABLE | fsmode)
 
     def _getxy(self, pos):
         """Calculate board coordinates for provided mouse screen position.
@@ -176,18 +181,20 @@ class Display3D(Display):
     This class implements pseudo-3D display using PyGame engine.
     """
 
-    def __init__(self, board, cmap='viridis'):
+    def __init__(self, board, cmap='viridis', fullscreen=False):
         """Initialize pseudo-3D display.
 
         Args:
             board (Board): board instance providing game logic
             cmap (str): color map name
+            fullscreen (bool): whether to show the display in fullscreen mode
         """
-        super().__init__(board, cmap)
+        super().__init__(board, cmap, fullscreen)
 
         size = board.size[0] + board.size[1]
         self._size = 48 + 15 * size, 64 + 8 * size
-        self._screen = pygame.display.set_mode(self._size, pygame.SCALED | pygame.RESIZABLE)
+        fsmode = pygame.FULLSCREEN if fullscreen else 0
+        self._screen = pygame.display.set_mode(self._size, pygame.SCALED | pygame.RESIZABLE | fsmode)
 
         self._dx = self._dy = 0
         self._mouse_pos = None
